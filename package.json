@@ -5,7 +5,7 @@
     "url": "git+https://github.com/aroth/react-native-uploader.git"
   },
   "version": "0.0.1",
-  "description": "A React Native module to upload files and camera roll assets.",
+  "description": "A React Native module to upload files and camera roll assets. Supports progress notification.",
   "author": {
     "name": "Adam Roth",
     "url": "aroth"
