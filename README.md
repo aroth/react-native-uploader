@@ -60,7 +60,7 @@ doUpload(){
 		params: { 'user_id': 1 },                   // optional
 	};
 
-	RNUploader.upload( obj, ( err, data )=>{
+	RNUploader.upload( opts, ( err, data )=>{
 		if( err ){
 			console.log(err);
 			return;
