@@ -177,10 +177,6 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
     [self.requestBody appendData:endData];
     [self.request setHTTPBody:self.requestBody];
     
-    NSString *str = [[NSString alloc] initWithData:self.requestBody encoding:NSASCIIStringEncoding];
-    
-    NSLog( @"REQ BODY == %@", str);
-    
     // upload
     NSURLConnection * connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
     [connection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
