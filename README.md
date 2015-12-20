@@ -67,6 +67,7 @@ doUpload(){
 		}
   
 		console.log('upload complete');
+		console.log('response string: ' + data);
 	});
 }
 
