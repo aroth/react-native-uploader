@@ -9,6 +9,8 @@
 
 @interface RNUploader : NSObject <RCTBridgeModule, NSURLConnectionDelegate, NSURLConnectionDataDelegate>
     @property NSMutableData *responseData;
+    @property NSInteger responseStatusCode;
+
     @property NSMutableURLRequest *request;
     @property NSMutableData *requestBody;
     @property NSMutableArray *files;
@@ -18,8 +20,6 @@
 
     @property dispatch_group_t fgroup;
 @end
-
-
 
 @implementation RNUploader
 
@@ -58,7 +58,6 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
         [self sendRequest];
     });
 }
-
 
 //
 // Action Methods
@@ -183,7 +182,6 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
     [connection start];
 }
 
-
 //
 // Helpers
 //
@@ -208,7 +206,6 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
     return contentType;
 }
 
-
 //
 // Delegate Methods
 //
@@ -224,7 +221,7 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"RNUploaderDidReceiveResponse" body:nil];
-    
+    self.responseStatusCode = [(NSHTTPURLResponse *)response statusCode];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
@@ -236,8 +233,10 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
     NSString *responseString = [[NSString alloc] initWithData:self.responseData encoding:NSUTF8StringEncoding];
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"RNUploaderDataFinishLoading" body:responseString];
-    _callback(@[[NSNull null], responseString]);
-     
+    
+    NSDictionary *res= [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithInteger:self.responseStatusCode],@"status",responseString,@"data",nil];
+    
+    _callback(@[[NSNull null], res]);
 }
 
 - (void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {

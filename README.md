@@ -30,7 +30,7 @@ componentDidMount(){
 	  let bytesTotal   = data.totalBytesExpectedToWrite;
 	  let progress     = data.progress;
 	  
-	  console.log( "upload progress: " + data.progress + "%");
+	  console.log( "upload progress: " + progress + "%");
 	});
 }
 ```
@@ -60,14 +60,17 @@ doUpload(){
 		params: { 'user_id': 1 },                   // optional
 	};
 
-	RNUploader.upload( opts, ( err, data )=>{
+	RNUploader.upload( opts, ( err, res )=>{
 		if( err ){
 			console.log(err);
 			return;
 		}
   
-		console.log('upload complete');
-		console.log('response string: ' + data);
+		let status = res.status;
+		let responseString = res.data;
+		let json = JSON.parse( responseString );
+
+		console.log('upload complete with status ' + status);
 	});
 }
 
@@ -80,7 +83,7 @@ Inspired by similiar projects:
 ...with noteable enhancements:
 * uploads are performed asynchronously on the native side
 * progress reporting
-* packaged as an library
+* packaged as a static library
 * support for multiple files at a time
 * support for files from the assets library, base64 `data:` or `file:` paths 
 * no external dependencies (ie: AFNetworking)
