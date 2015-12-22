@@ -113,6 +113,19 @@ doUpload(){
 |filepath|string|required|File URI<br>Supports `assets-library:`, `data:` and `file:` URIs and file paths.|`assets-library://...`<br>`data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOV...`<br>`file:/tmp/image1.png`<br>`/tmp/image1.png`|
 |filetype|string|optional|MIME type of file. If missing, will infer based on the extension in `filepath`.|`image/png`|
 
+### Progress
+To monitor upload progress simply subscribe to the `RNUploaderProgress` event using DeviceEventEmitter.
+
+```
+DeviceEventEmitter.addListener('RNUploaderProgress', (data)=>{
+  let bytesWritten = data.totalBytesWritten;
+  let bytesTotal   = data.totalBytesExpectedToWrite;
+  let progress     = data.progress;
+  
+  console.log( "upload progress: " + progress + "%");
+});
+```
+
 ### Notes
 
 Inspired by similiar projects:
