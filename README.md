@@ -98,7 +98,7 @@ doUpload(){
 `callback` is a method with two parameters:
 
 ||type|description|example|
-|---|---|---|---|---|
+|---|---|---|---|
 |error|string|String detailing the error|`A server with the specified hostname could not be found.`|
 |response|object{status:Number, data:String}|Object returned with a status code and data.|`{ status: 200, data: '{ success: true }' }`|
 
