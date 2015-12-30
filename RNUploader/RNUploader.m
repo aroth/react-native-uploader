@@ -11,6 +11,7 @@
     @property NSMutableData *responseData;
     @property NSInteger responseStatusCode;
 
+    @property NSURLConnection *connection;
     @property NSMutableURLRequest *request;
     @property NSMutableData *requestBody;
     @property NSMutableArray *files;
@@ -26,7 +27,13 @@
 @synthesize bridge = _bridge;
 RCTResponseSenderBlock _callback;
 
+
 RCT_EXPORT_MODULE()
+
+RCT_EXPORT_METHOD(cancel){
+    [self.connection cancel];
+}
+
 RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)callback)
 {
     _callback = callback;
@@ -177,9 +184,9 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
     [self.request setHTTPBody:self.requestBody];
     
     // upload
-    NSURLConnection * connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
-    [connection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
-    [connection start];
+    self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
+    [self.connection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    [self.connection start];
 }
 
 //

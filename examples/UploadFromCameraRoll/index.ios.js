@@ -29,6 +29,7 @@ class UploadFromCameraRoll extends React.Component {
       uploadTotal: 0,
       uploadWritten: 0,
       uploadStatus: undefined,
+      cancelled: false,
       images: [],
     }
   }
@@ -63,7 +64,12 @@ class UploadFromCameraRoll extends React.Component {
   }
   
   _closeUploadModal(){
-    this.setState( { showUploadModal: false, uploadProgress: 0, uploadTotal: 0, uploadWritten: 0, images: [], } );
+    this.setState( { showUploadModal: false, uploadProgress: 0, uploadTotal: 0, uploadWritten: 0, images: [], cancelled: false, } );
+  }
+  
+  _cancelUpload(){
+    RNUploader.cancel();
+    this.setState( { uploading: false, cancelled: true } );
   }
   
   _uploadImages(){
@@ -77,32 +83,43 @@ class UploadFromCameraRoll extends React.Component {
     });
     
     let opts = {
-        url: 'https://posttestserver.com/post.php',
-        files: files, 
-        params: { name: 'test-app' }
+      url: 'https://posttestserver.com/post.php',
+      files: files, 
+      params: { name: 'test-app' }
     };
     
-    this.setState({ uploading: true, showUploadModal: true, });
+    this.setState({ uploading: true, showUploadModal: true, });    
     RNUploader.upload( opts, ( err, res )=>{
-        if( err ){
-            console.log(err);
-            return;
-        }
+      if( err ){
+          console.log(err);
+          return;
+      }
 
-        let status = res.status;
-        let responseString = res.data;
+      let status = res.status;
+      let responseString = res.data;
 
-        console.log('upload complete with status ' + status);
-        console.log( responseString );
-        this.setState( { uploading: false, uploadStatus: status } );
-    });
-    
+      console.log('upload complete with status ' + status);
+      console.log( responseString );
+      this.setState( { uploading: false, uploadStatus: status } );
+    });      
+
   }
   
   uploadProgressModal(){
     let uploadProgress;
     
-    if( !this.state.uploading && this.state.uploadStatus ){
+    if( this.state.cancelled ){
+      uploadProgress = (
+        <View style={{ margin: 5, alignItems: 'center', }}>
+          <Text style={{ marginBottom: 10, }}>
+            Upload Cancelled
+          </Text>
+          <TouchableOpacity style={ styles.button } onPress={ this._closeUploadModal.bind(this) }>
+            <Text>Close</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }else if( !this.state.uploading && this.state.uploadStatus ){
       uploadProgress = (
         <View style={{ margin: 5, alignItems: 'center', }}>
           <Text style={{ marginBottom: 10, }}>
@@ -125,6 +142,9 @@ class UploadFromCameraRoll extends React.Component {
           <Text style={{ fontSize: 11, color: 'gray', marginTop: 5, }}>
             { ( this.state.uploadWritten / 1024 ).toFixed(0) }/{ ( this.state.uploadTotal / 1024 ).toFixed(0) } KB
           </Text>
+          <TouchableOpacity style={ [styles.button, {marginTop: 5}] } onPress={ this._cancelUpload.bind(this) }>
+            <Text>{ 'Cancel' }</Text>
+          </TouchableOpacity>
         </View>
       );
     }

@@ -126,6 +126,12 @@ DeviceEventEmitter.addListener('RNUploaderProgress', (data)=>{
 });
 ```
 
+### Cancel
+To cancel an upload in progress:
+
+```
+RNUploader.cancel();
+
 ### Notes
 
 Inspired by similiar projects:

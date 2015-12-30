@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "react-native": "^0.17.0",
-		"react-native-uploader": "^0.0.3"
+		"react-native-uploader": "file:../../"
   }
 }
