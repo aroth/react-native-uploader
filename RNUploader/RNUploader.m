@@ -37,7 +37,7 @@ RCT_EXPORT_METHOD(cancel){
 RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)callback)
 {
     _callback = callback;
-    
+
     NSString *uploadURL   = obj[@"url"];
     NSDictionary *headers = obj[@"headers"];
     NSDictionary *params  = obj[@"params"];
@@ -48,7 +48,7 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
 
     self.formBoundaryString = [self generateBoundaryString];
     self.formBoundaryData   = [[NSString stringWithFormat:@"--%@\r\n", self.formBoundaryString] dataUsingEncoding:NSUTF8StringEncoding];
-    
+
     self.request      = [NSMutableURLRequest requestWithURL:url];
     self.responseData = [[NSMutableData alloc] init];
     self.requestBody  = [[NSMutableData alloc] init];
@@ -105,7 +105,7 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
         if (![value isKindOfClass:[NSString class]]) {
             continue;
         }
-        
+
         [self.requestBody appendData:self.formBoundaryData];
         [self.requestBody appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key] dataUsingEncoding:NSUTF8StringEncoding]];
         [self.requestBody appendData:[value dataUsingEncoding:NSUTF8StringEncoding]];
@@ -115,44 +115,69 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
 
 - (void)prepareFiles:(NSArray *)files {
     ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-    
+
     for (NSDictionary *file in files) {
         dispatch_group_enter(self.fgroup);
-        
+
         NSMutableDictionary *_file = [[NSMutableDictionary alloc] initWithDictionary:file];
         [self.files addObject:_file];
-        
+
         if( [_file[@"filepath"] hasPrefix:@"assets-library:"]) {
             NSURL *assetURL = [[NSURL alloc] initWithString:file[@"filepath"]];
-            
+
             [library assetForURL:assetURL resultBlock:^(ALAsset *asset) {
+
+
+                ALAssetRepresentation *representation = [asset defaultRepresentation];
+
+                    NSString *fileName = [representation filename];
+                    //Getting MIMEType
+                    NSString *MIMEType = (__bridge_transfer NSString*)UTTypeCopyPreferredTagWithClass
+                    ((__bridge CFStringRef)[representation UTI], kUTTagClassMIMEType);
+
+
                 ALAssetRepresentation *rep = [asset defaultRepresentation];
-                CGImageRef fullScreenImageRef = [rep fullScreenImage];
-                UIImage *image = [UIImage imageWithCGImage:fullScreenImageRef];
-                
-                _file[@"data"] = UIImagePNGRepresentation(image);
-                
+
+                //testing RegExp (video|image)
+                if([MIMEType rangeOfString:@"video" options:NSRegularExpressionSearch].location != NSNotFound){
+
+                    //buffering output
+                    Byte *buffer = (Byte*)malloc((NSUInteger)rep.size);
+                    NSUInteger buffered = [rep getBytes:buffer fromOffset:0.0 length:(NSUInteger)rep.size error:nil];
+                    NSData *data = [NSData dataWithBytesNoCopy:buffer length:buffered freeWhenDone:YES];
+                    
+                    _file[@"data"] = data;
+
+                }else if([MIMEType rangeOfString:@"image" options:NSRegularExpressionSearch].location != NSNotFound){
+
+                    CGImageRef fullScreenImageRef = [rep fullScreenImage];
+                    UIImage *image = [UIImage imageWithCGImage:fullScreenImageRef];
+
+                    _file[@"data"] = UIImagePNGRepresentation(image);
+                }
+
                 dispatch_group_leave(self.fgroup);
-                
+
             } failureBlock:^(NSError *error) {
                 NSLog(@"Getting file from library failed: %@", error);
                 dispatch_group_leave(self.fgroup);
             }];
-            
+
+
         }else{
             NSString *filepath = _file[@"filepath"];
             NSURL *fileUrl = [[NSURL alloc] initWithString:filepath];
-            
+
             if ( [filepath hasPrefix:@"data:"] || [filepath hasPrefix:@"file:"]) {
                 _file[@"data"] = [NSData dataWithContentsOfURL: fileUrl];
             } else {
                 _file[@"data"] = [NSData dataWithContentsOfFile:filepath];
             }
-            
+
             dispatch_group_leave(self.fgroup);
         }
     }
-    
+
 }
 
 - (void)appendFiles {
@@ -161,16 +186,16 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
         NSString *filename = file[@"filename"];
         NSString *filetype = file[@"filetype"];
         NSData *data       = file[@"data"];
-        
+
         [self.requestBody appendData:self.formBoundaryData];
         [self.requestBody appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\n", name.length ? name : filename, filename] dataUsingEncoding:NSUTF8StringEncoding]];
-        
+
         if (filetype) {
             [self.requestBody appendData:[[NSString stringWithFormat:@"Content-Type: %@\r\n", filetype] dataUsingEncoding:NSUTF8StringEncoding]];
         } else {
             [self.requestBody appendData:[[NSString stringWithFormat:@"Content-Type: %@\r\n", [self mimeTypeForPath:filename]] dataUsingEncoding:NSUTF8StringEncoding]];
         }
-        
+
         [self.requestBody appendData:[[NSString stringWithFormat:@"Content-Length: %ld\r\n\r\n", (long)[data length]] dataUsingEncoding:NSUTF8StringEncoding]];
         [self.requestBody appendData:data];
         [self.requestBody appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
@@ -179,10 +204,10 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
 
 - (void)sendRequest {
     NSData *endData = [[NSString stringWithFormat:@"--%@--\r\n", self.formBoundaryString] dataUsingEncoding:NSUTF8StringEncoding];
-    
+
     [self.requestBody appendData:endData];
     [self.request setHTTPBody:self.requestBody];
-    
+
     // upload
     self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
     [self.connection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
@@ -205,11 +230,11 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
     NSString *fileExtension = [filepath pathExtension];
     NSString *UTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)fileExtension, NULL);
     NSString *contentType = (__bridge_transfer NSString *)UTTypeCopyPreferredTagWithClass((__bridge CFStringRef)UTI, kUTTagClassMIMEType);
-    
+
     if (!contentType) {
         contentType = @"application/octet-stream";
     }
-    
+
     return contentType;
 }
 
@@ -240,9 +265,9 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
     NSString *responseString = [[NSString alloc] initWithData:self.responseData encoding:NSUTF8StringEncoding];
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"RNUploaderDataFinishLoading" body:responseString];
-    
+
     NSDictionary *res= [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithInteger:self.responseStatusCode],@"status",responseString,@"data",nil];
-    
+
     _callback(@[[NSNull null], res]);
 }
 
