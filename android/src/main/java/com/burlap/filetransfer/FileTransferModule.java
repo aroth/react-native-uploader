@@ -104,7 +104,7 @@ public class FileTransferModule extends ReactContextBaseJavaModule {
               return;
           }
 
-          String mimeType = "image/png"
+          String mimeType = "image/png";
           if(file.hasKey("filetype")){
             mimeType = file.getString("filetype");
           }
