@@ -53,7 +53,7 @@ doUpload(){
 		{
 			name: 'file[]',
 			filename: 'image2.gif',
-			filepath: "data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7",
+			filepath: "data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7", // base64 only support ios
 			filetype: 'image/gif',
 		},
 	];
@@ -61,9 +61,10 @@ doUpload(){
 	let opts = {
 		url: 'http://my.server/api/upload',
 		files: files, 
-		method: 'POST',                             // optional: POST or PUT
-		headers: { 'Accept': 'application/json' },  // optional
-		params: { 'user_id': 1 },                   // optional
+		method: 'POST',                             // optional: POST or PUT, only support ios
+		headers: { 'Accept': 'application/json' },  // optional, only support ios
+		params: { 'user_id': 1 },                   // optional, only support ios
+		data: {title: 'awesome', created: '2016-06-07'} //opional, only support android
 	};
 
 	RNUploader.upload( opts, (err, response) => {
@@ -77,6 +78,8 @@ doUpload(){
 		let json = JSON.parse( responseString );
 
 		console.log('upload complete with status ' + status);
+
+		// android's response is response.body.string.
 	});
 }
 

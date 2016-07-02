@@ -31,5 +31,6 @@
       "name": "aroth",
       "email": "adamjroth@gmail.com"
     }
-  ]
+  ],
+  "main": "index"
 }
