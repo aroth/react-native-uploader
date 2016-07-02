@@ -95,7 +95,7 @@ doUpload(){
 		files: files, 
 		method: 'POST',                             // optional: POST or PUT, only support ios, android always have POST
 		headers: { 'Accept': 'application/json' },  // optional, only support ios, android always have  { 'Accept': 'application/json' }
-		params: { 'user_id': 1 },                   // optional, 
+		params: { 'user_id': 1 },                   // optional, Android support this only string. If you want this in Android use params: { 'user_id': '1' }
 	};
 
 	RNUploader.upload( opts, (err, response) => {
@@ -126,7 +126,8 @@ doUpload(){
 |`url`|string|required|URL to upload to|`http://my.server/api/upload`|
 |`method(only iOS)`|string|optional|HTTP method, values: [PUT,POST], default: POST|`POST`|
 |`headers(only iOS)`|object|optional|HTTP headers|`{ 'Accept': 'application/json' }`|
-|`params`|object|optional|Query parameters|`{ 'user_id': 1  }`|
+|`params(iOS)`|object|optional|Query parameters|`{ 'user_id': 1  }`|
+|`params(Android)`|object|optional|Query parameters|`{ 'user_id': '1'  }`<br> only support string value. You can't use int, boolean, etc..|
 |`files`|array|required|Array of file objects to upload. See below.| `[{ name: 'file', filename: 'image1.png', filepath: 'assets-library://...', filetype: 'image/png' } ]` |
 
 `callback` is a method with two parameters:
