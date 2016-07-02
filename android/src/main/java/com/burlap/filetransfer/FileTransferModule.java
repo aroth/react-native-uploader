@@ -109,8 +109,12 @@ public class FileTransferModule extends ReactContextBaseJavaModule {
             mimeType = file.getString("filetype");
           }
           MediaType mediaType = MediaType.parse(mimeType);
-          String name = file.getString("name");
           String fileName = file.getString("filename");
+          Stirng name = fileName;
+          if(file.hasKey("name")){
+            name = file.getString("name");
+          }
+          
 
           mRequestBody.addFormDataPart(name, fileName, RequestBody.create(mediaType, imageFile));
         }
