@@ -2,13 +2,45 @@
 A React Native module for uploading files and camera roll assets. Supports progress notification.
 
 ## Install
+### Use rnpm
+1. `npm install react-native-uploader --save`
+2. `rnpm link react-native-uploader`
 
+
+If you don't want use rnpm, do this
 ### iOS
 1. `npm install react-native-uploader --save`
 2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-uploader` ➜ `RNUploader` and add `RNUploader.xcodeproj`
 4. In XCode, in the project navigator, select your project. Add `libRNUploader.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
 5. Run your project (`Cmd+R`)
+
+### Android
+1. Add to your settings.gradle:
+```
+include ':RNFileTransfer', ':app'
+project(':RNFileTransfer').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-file-transfer-android/android')
+```
+
+2. Add to your android/build.gradle:
+```
+dependencies {
+  ...
+  compile project(':RNFileTransfer')
+}
+```
+
+3. Add to MainActivity.java
+```
+import com.burlap.filetransfer.FileTransferPackage;
+...
+mReactInstanceManager = ReactInstanceManager.builder()
+        .setApplication(getApplication())
+        .setBundleAssetName("index.android.bundle")
+        .setJSMainModuleName("index.android")
+        .addPackage(new MainReactPackage())
+        .addPackage(new FileTransferPackage())
+```
 
 ## Example
 See ./examples/UploadFromCameraRoll
@@ -61,10 +93,9 @@ doUpload(){
 	let opts = {
 		url: 'http://my.server/api/upload',
 		files: files, 
-		method: 'POST',                             // optional: POST or PUT, only support ios
-		headers: { 'Accept': 'application/json' },  // optional, only support ios
-		params: { 'user_id': 1 },                   // optional, only support ios
-		data: {title: 'awesome', created: '2016-06-07'} //opional, only support android
+		method: 'POST',                             // optional: POST or PUT, only support ios, android always have POST
+		headers: { 'Accept': 'application/json' },  // optional, only support ios, android always have  { 'Accept': 'application/json' }
+		params: { 'user_id': 1 },                   // optional, 
 	};
 
 	RNUploader.upload( opts, (err, response) => {
@@ -93,8 +124,8 @@ doUpload(){
 ||type|required|description|example|
 |---|---|---|---|---|
 |`url`|string|required|URL to upload to|`http://my.server/api/upload`|
-|`method`|string|optional|HTTP method, values: [PUT,POST], default: POST|`POST`|
-|`headers`|object|optional|HTTP headers|`{ 'Accept': 'application/json' }`|
+|`method(only iOS)`|string|optional|HTTP method, values: [PUT,POST], default: POST|`POST`|
+|`headers(only iOS)`|object|optional|HTTP headers|`{ 'Accept': 'application/json' }`|
 |`params`|object|optional|Query parameters|`{ 'user_id': 1  }`|
 |`files`|array|required|Array of file objects to upload. See below.| `[{ name: 'file', filename: 'image1.png', filepath: 'assets-library://...', filetype: 'image/png' } ]` |
 
@@ -103,7 +134,8 @@ doUpload(){
 ||type|description|example|
 |---|---|---|---|
 |error|string|String detailing the error|`A server with the specified hostname could not be found.`|
-|response|object{status:Number, data:String}|Object returned with a status code and data.|`{ status: 200, data: '{ success: true }' }`|
+|response(iOS)|object{status:Number, data:String}|Object returned with a status code and data.|`{ status: 200, data: '{ success: true }' }`|
+|response(Android)|String|String returned with responseBody.|`success: true`|
 
 
 #### `files`
@@ -113,10 +145,10 @@ doUpload(){
 |---|---|---|---|---|
 |name|string|optional|Form parameter key for the specified file. If missing, will use `filename`.|`file[]`|
 |filename|string|required|filename|`image1.png`|
-|filepath|string|required|File URI<br>Supports `assets-library:`, `data:` and `file:` URIs and file paths.|`assets-library://...`<br>`data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOV...`<br>`file:/tmp/image1.png`<br>`/tmp/image1.png`|
+|filepath|string|required|File URI<br>Supports `assets-library:`, `data:` and `file:` URIs and file paths.|`assets-library://...(iOS)`<br>`content://...(Android)`<br>`data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOV...(only iOS)`<br>`file:/tmp/image1.png`<br>`/tmp/image1.png`|
 |filetype|string|optional|MIME type of file. If missing, will infer based on the extension in `filepath`.|`image/png`|
 
-### Progress
+### Progress (only support iOS)
 To monitor upload progress simply subscribe to the `RNUploaderProgress` event using DeviceEventEmitter.
 
 ```
@@ -129,7 +161,7 @@ DeviceEventEmitter.addListener('RNUploaderProgress', (data)=>{
 });
 ```
 
-### Cancel
+### Cancel (only support iOS)
 To cancel an upload in progress:
 ```
 RNUploader.cancel()
@@ -148,6 +180,7 @@ Inspired by similiar projects:
 * support for multiple files at a time
 * support for files from the assets library, base64 `data:` or `file:` paths 
 * no external dependencies (ie: AFNetworking)
+* support Android
 
 ## License
 

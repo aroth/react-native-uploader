@@ -2,6 +2,8 @@ package com.burlap.filetransfer;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.database.Cursor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.net.Uri;
 
@@ -66,15 +68,18 @@ public class FileTransferModule extends ReactContextBaseJavaModule {
       ReadableArray files = options.getArray("files");
       String url = options.getString("url");
 
-      ReadableMap data = options.getMap("data");
-      ReadableMapKeySetIterator iterator = data.keySetIterator();
+      if(options.hasKey("params")){
+        ReadableMap data = options.getMap("params");
+        ReadableMapKeySetIterator iterator = data.keySetIterator();
 
-      while(iterator.hasNextKey()){
-        String key = iterator.nextKey();
-        if(ReadableType.String.equals(data.getType(key))) {
-          mRequestBody.addFormDataPart(key, data.getString(key));
+        while(iterator.hasNextKey()){
+          String key = iterator.nextKey();
+          if(ReadableType.String.equals(data.getType(key))) {
+            mRequestBody.addFormDataPart(key, data.getString(key));
+          }
         }
       }
+
 
 
 
@@ -99,7 +104,10 @@ public class FileTransferModule extends ReactContextBaseJavaModule {
               return;
           }
 
-          String mimeType = file.getString("filetype");
+          String mimeType = "image/png"
+          if(file.hasKey("filetype")){
+            mimeType = file.getString("filetype");
+          }
           MediaType mediaType = MediaType.parse(mimeType);
           String name = file.getString("name");
           String fileName = file.getString("filename");
