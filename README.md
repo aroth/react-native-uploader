@@ -50,7 +50,7 @@ See ./examples/UploadFromCameraRoll
 
 ## Usage
 ```javascript
-var RNUploader = require('NativeModules').RNUploader;
+var RNUploader = require('react-native-uploader');
 
 var {
 	StyleSheet, 
