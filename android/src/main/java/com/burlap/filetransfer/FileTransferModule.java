@@ -110,7 +110,7 @@ public class FileTransferModule extends ReactContextBaseJavaModule {
           }
           MediaType mediaType = MediaType.parse(mimeType);
           String fileName = file.getString("filename");
-          Stirng name = fileName;
+          String name = fileName;
           if(file.hasKey("name")){
             name = file.getString("name");
           }
