@@ -5,10 +5,23 @@ A React Native module for uploading files and camera roll assets. Supports progr
 
 ### iOS
 1. `npm install react-native-uploader --save`
-2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
-3. Go to `node_modules` ➜ `react-native-uploader` ➜ `RNUploader` and add `RNUploader.xcodeproj`
-4. In XCode, in the project navigator, select your project. Add `libRNUploader.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-5. Run your project (`Cmd+R`)
+
+2. Link the native modules:
+
+If you're using React-Native >= 0.29:
+* Link the library with the command `react-native link`
+
+If you're using React-Native < 0.29:
+* Install rnpm using the command `npm install -g rnpm`
+* Link the library with the command `rnpm link`
+
+If you have any issues, you can install the library manually:
+* In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
+* Go to `node_modules` ➜ `react-native-uploader` ➜ `RNUploader` and add `RNUploader.xcodeproj`
+* In XCode, in the project navigator, select your project. Add `libRNUploader.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
+
+3. Run your project (`Cmd+R`)
+
 
 ## Example
 See ./examples/UploadFromCameraRoll
