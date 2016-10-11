@@ -17,6 +17,9 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.ReadableType;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import org.json.*;
 
@@ -35,19 +38,17 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import com.zhy.http.okhttp.request.CountingRequestBody;
 
 public class FileTransferModule extends ReactContextBaseJavaModule {
 
   private final OkHttpClient client = new OkHttpClient();
-
-  private static String siteUrl = "http://joinbevy.com";
-  private static String apiUrl = "http://api.joinbevy.com";
-  private static Integer port = 80;
-
   private String TAG = "ImageUploadAndroid";
+  ReactApplicationContext reactContext = null;
 
   public FileTransferModule(ReactApplicationContext reactContext) {
     super(reactContext);
+    this.reactContext = reactContext;
   }
 
   @Override
@@ -123,10 +124,25 @@ public class FileTransferModule extends ReactContextBaseJavaModule {
 
 
         MultipartBody requestBody = mRequestBody.build();
+      
+        CountingRequestBody monitoredRequest = new CountingRequestBody(requestBody, new CountingRequestBody.Listener() {
+          @Override
+          public void onRequestProgress(long bytesWritten, long contentLength) {
+            WritableMap params = Arguments.createMap();
+            params.putDouble("progress",100f * bytesWritten / contentLength);
+            params.putDouble("totalBytesWritten", bytesWritten);
+            params.putDouble("totalBytesExpectedToWrite", contentLength);
+
+            reactContext
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit("RNUploaderProgress", params);
+          }
+        });
+      
         Request request = new Request.Builder()
                 .header("Accept", "application/json")
                 .url(url)
-                .post(requestBody)
+                .post(monitoredRequest)
                 .build();
 
         Response response = client.newCall(request).execute();
