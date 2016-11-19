@@ -1,6 +1,9 @@
 # react-native-uploader
 A React Native module for uploading files and camera roll assets. Supports progress notification.
 
+# Do you absolutely need this?
+You can use file upload with `fetch` and if you want progress bar, you can use xhr. Read my post [How to upload photo/file in react-native](https://github.com/g6ling/React-Native-Tips/tree/master/How_to_upload_photo%2Cfile_in%20react-native). Even after read my post, but you are not enough, read the following.
+
 ## Install
 ### Use rnpm
 1. `npm install react-native-uploader --save`
@@ -53,7 +56,7 @@ See ./examples/UploadFromCameraRoll
 var RNUploader = require('react-native-uploader');
 
 var {
-	StyleSheet, 
+	StyleSheet,
 	Component,
 	View,
 	DeviceEventEmitter,
@@ -67,7 +70,7 @@ componentDidMount(){
 	  let bytesWritten = data.totalBytesWritten;
 	  let bytesTotal   = data.totalBytesExpectedToWrite;
 	  let progress     = data.progress;
-	  
+
 	  console.log( "upload progress: " + progress + "%");
 	});
 }
@@ -92,7 +95,7 @@ doUpload(){
 
 	let opts = {
 		url: 'http://my.server/api/upload',
-		files: files, 
+		files: files,
 		method: 'POST',                             // optional: POST or PUT, only support ios, android always have POST
 		headers: { 'Accept': 'application/json' },  // optional, only support ios, android always have  { 'Accept': 'application/json' }
 		params: { 'user_id': 1 },                   // optional, Android support this only string. If you want this in Android use params: { 'user_id': '1' }
@@ -103,7 +106,7 @@ doUpload(){
 			console.log(err);
 			return;
 		}
-  
+
 		let status = response.status;
 		let responseString = response.data;
 		let json = JSON.parse( responseString );
@@ -157,7 +160,7 @@ DeviceEventEmitter.addListener('RNUploaderProgress', (data)=>{
   let bytesWritten = data.totalBytesWritten;
   let bytesTotal   = data.totalBytesExpectedToWrite;
   let progress     = data.progress;
-  
+
   console.log( "upload progress: " + progress + "%");
 });
 ```
@@ -179,7 +182,7 @@ Inspired by similiar projects:
 * progress reporting
 * packaged as a static library
 * support for multiple files at a time
-* support for files from the assets library, base64 `data:` or `file:` paths 
+* support for files from the assets library, base64 `data:` or `file:` paths
 * no external dependencies (ie: AFNetworking)
 * support Android
 
