@@ -31,18 +31,20 @@ See ./examples/UploadFromCameraRoll
 
 ## Usage
 ```javascript
-var RNUploader = require('NativeModules').RNUploader;
+import React, { Component } from 'react';
 
-var {
-	StyleSheet, 
-	Component,
-	View,
-	DeviceEventEmitter,
-} = React;
+import {
+  StyleSheet,
+  Component,
+  View,
+  DeviceEventEmitter,
+} from 'react-native';
+
+var RNUploader = NativeModules.RNUploader;
 ```
 
 ```javascript
-componentDidMount(){
+componentDidMount() {
 	// upload progress
 	DeviceEventEmitter.addListener('RNUploaderProgress', (data)=>{
 	  let bytesWritten = data.totalBytesWritten;
@@ -55,7 +57,7 @@ componentDidMount(){
 ```
 
 ```javascript
-doUpload(){
+doUpload() {
 	let files = [
 		{
 			name: 'file[]',
