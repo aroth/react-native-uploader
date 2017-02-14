@@ -145,15 +145,22 @@ RCT_EXPORT_METHOD(upload:(NSDictionary *)obj callback:(RCTResponseSenderBlock)ca
                     Byte *buffer = (Byte*)malloc((NSUInteger)rep.size);
                     NSUInteger buffered = [rep getBytes:buffer fromOffset:0.0 length:(NSUInteger)rep.size error:nil];
                     NSData *data = [NSData dataWithBytesNoCopy:buffer length:buffered freeWhenDone:YES];
-                    
+
                     _file[@"data"] = data;
 
                 }else if([MIMEType rangeOfString:@"image" options:NSRegularExpressionSearch].location != NSNotFound){
 
-                    CGImageRef fullScreenImageRef = [rep fullScreenImage];
-                    UIImage *image = [UIImage imageWithCGImage:fullScreenImageRef];
+                    CGImageRef fullScreenImageRef = [rep fullResolutionImage];
+                    UIImage *image = [UIImage imageWithCGImage:fullScreenImageRef scale:[rep scale] orientation:[rep orientation]];
 
-                    _file[@"data"] = UIImagePNGRepresentation(image);
+                    if (
+                        [_file[@"filetype"] isEqualToString:@"image/jpeg"] ||
+                        [_file[@"filetype"] isEqualToString:@"image/jpg"]
+                    ) {
+                        _file[@"data"] = UIImageJPEGRepresentation(image, 1);
+                    } else {
+                        _file[@"data"] = UIImagePNGRepresentation(image);
+                    }
                 }
 
                 dispatch_group_leave(self.fgroup);
