@@ -4,7 +4,7 @@
 #import <UIKit/UIKit.h>
 
 #import <React/RCTBridgeModule.h>
-#import "RCTEventDispatcher.h"
+#import <React/RCTEventDispatcher.h>
 #import "RCTLog.h"
 
 @interface RNUploader : NSObject <RCTBridgeModule, NSURLConnectionDelegate, NSURLConnectionDataDelegate>
