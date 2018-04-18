@@ -3,7 +3,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <UIKit/UIKit.h>
 
-#import "RCTBridgeModule.h"
+#import <React/RCTBridgeModule.h>
 #import "RCTEventDispatcher.h"
 #import "RCTLog.h"
 
