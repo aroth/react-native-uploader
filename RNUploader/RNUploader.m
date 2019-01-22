@@ -3,9 +3,9 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <UIKit/UIKit.h>
 
-#import "RCTBridgeModule.h"
-#import "RCTEventDispatcher.h"
-#import "RCTLog.h"
+#import <React/RCTBridgeModule.h>
+#import <React/RCTEventDispatcher.h>
+#import <React/RCTLog.h>
 
 @interface RNUploader : NSObject <RCTBridgeModule, NSURLConnectionDelegate, NSURLConnectionDataDelegate>
     @property NSMutableData *responseData;
