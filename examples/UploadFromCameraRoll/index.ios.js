@@ -77,7 +77,7 @@ class UploadFromCameraRoll extends React.Component {
     let files = this.state.images.map( (file) => {
       return {
         name: 'file',
-        filename: _generateUUID + '.png',
+        filename: _generateUUID() + '.png',
         filepath: file.uri,
         filetype: 'image/png',
       }
